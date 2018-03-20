@@ -11,15 +11,28 @@ int main(int argc, char *argv[])
   CURL *pos;
   CURLcode result;
   pos = curl_easy_init();
-  string s="127.0.0.1:";
+  if(!pos)
+  {
+    cout<<"Unable to initialise the connection\n";
+    exit(1);
+  }
+  char s[100]="127.0.0.1:";
+  int k=10;
   for(int i=0;i<strlen(argv[1]);i++)
-  s+= argv[1][i];
-  s+="/";
+  s[k++]= argv[1][i];
+  s[k++]='/';
   for(int i=0;i<strlen(argv[2]);i++)
-  s+= argv[2][i];
-  curl_easy_setopt(pos,CURLOPT_URL,"127.0.0.1:8000/hurray.csv");
+  s[k++]= argv[2][i];
+  
+  curl_easy_setopt(pos,CURLOPT_URL,s);
   curl_easy_setopt(pos, CURLOPT_VERBOSE, 1L);
   result = curl_easy_perform(pos);
+  
+  if(result != CURLE_OK)
+  {
+    cout<<"Error connecting with the server\n\n\n";
+    exit(1);
+  }
   curl_global_cleanup();
   return 0;
 }
