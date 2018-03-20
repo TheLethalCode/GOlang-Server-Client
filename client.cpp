@@ -13,11 +13,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    char s[100]="127.0.0.1:";
-    int k=10;
-    for(int i=0;i<strlen(argv[1]);i++)
-    s[k++]= argv[1][i];
-
     string kous;
     std::ifstream kosaksi(argv[2], std::ios::in | std::ios::binary);
     if (kosaksi)
@@ -66,7 +61,7 @@ int main(int argc, char *argv[])
     headerlist = curl_slist_append(headerlist, buf);
     if (curl) 
     {
-        curl_easy_setopt(curl, CURLOPT_URL, "127.0.0.1:8000");
+        curl_easy_setopt(curl, CURLOPT_URL, argv[1]);
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
         // Uncomment this section if you want details about the connection

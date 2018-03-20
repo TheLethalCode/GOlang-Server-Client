@@ -5,6 +5,6 @@ The server side is written in GOlang and the client side is written in C++.
 
 The client sends a CSV file to the server. The server processes the CSV and extracts all the emails in the file and sends it back to the client. 
 
-The client program accepts two arguments. The port and the file name. The port by default in the server is 8000.
+The client program accepts two arguments. The server URL and the file name. 
 
 You have to link the libcurl library while compiling.
