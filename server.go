@@ -2,25 +2,24 @@ package main
 
 import (
 	"net/http"
-	//"fmt"
-	"io/ioutil"
+	"bytes"
 	"io"
 	"strings"
-	"encoding/csv"
+    "encoding/csv"
 )
 
 
 func extractemail(w http.ResponseWriter, r *http.Request) {
 	
-	io.WriteString(w,"\nRequest Recieved\n")
-
-	dat, err := ioutil.ReadFile(r.URL.Path[1:])
+	var Buf bytes.Buffer
+	file, _ , err := r.FormFile("file")
 	if err != nil {
-		io.WriteString(w,"Unable to open file\n")
-		return 
+		panic(err)
 	}
+
+	io.Copy(&Buf, file)
 	
-	hi := csv.NewReader(strings.NewReader(string(dat)))
+	hi := csv.NewReader(strings.NewReader(Buf.String()))
 	record, err := hi.Read()
 	var val int
 	for i:=0;i<len(record);i=i+1 {
@@ -63,6 +62,7 @@ func extractemail(w http.ResponseWriter, r *http.Request) {
 	if flag == 0 {
 		io.WriteString(w,"No emails found in the email field" + "\n")
 	}
+	file.Close()
 }
 
 func main(){

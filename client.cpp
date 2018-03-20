@@ -7,32 +7,85 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  curl_global_init(CURL_GLOBAL_ALL);
-  CURL *pos;
-  CURLcode result;
-  pos = curl_easy_init();
-  if(!pos)
-  {
-    cout<<"Unable to initialise the connection\n";
-    exit(1);
-  }
-  char s[100]="127.0.0.1:";
-  int k=10;
-  for(int i=0;i<strlen(argv[1]);i++)
-  s[k++]= argv[1][i];
-  s[k++]='/';
-  for(int i=0;i<strlen(argv[2]);i++)
-  s[k++]= argv[2][i];
-  
-  curl_easy_setopt(pos,CURLOPT_URL,s);
-  curl_easy_setopt(pos, CURLOPT_VERBOSE, 1L);
-  result = curl_easy_perform(pos);
-  
-  if(result != CURLE_OK)
-  {
-    cout<<"Error connecting with the server\n\n\n";
-    exit(1);
-  }
-  curl_global_cleanup();
-  return 0;
+    if(argc != 3)
+    {
+        cout<<"Invalid number of arguments\n"<<endl;
+        exit(1);
+    }
+
+    char s[100]="127.0.0.1:";
+    int k=10;
+    for(int i=0;i<strlen(argv[1]);i++)
+    s[k++]= argv[1][i];
+
+    string kous;
+    std::ifstream kosaksi(argv[2], std::ios::in | std::ios::binary);
+    if (kosaksi)
+    {
+        kosaksi.seekg(0, std::ios::end);
+        kous.resize(kosaksi.tellg());
+        kosaksi.seekg(0, std::ios::beg);
+        kosaksi.read(&kous[0], kous.size());
+        kosaksi.close();
+    }
+    else 
+    {
+        cout<<"No such file"<<endl;
+        exit(1);
+    }
+
+    CURL *curl;
+    CURLcode res;
+    struct curl_httppost *formpost = NULL;
+    struct curl_httppost *lastptr = NULL;
+    struct curl_slist *headerlist = NULL;
+    static const char buf[] =  "Expect:";
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl_formadd(&formpost,
+        &lastptr,
+        CURLFORM_COPYNAME, "cache-control:",
+        CURLFORM_COPYCONTENTS, "hurray",
+        CURLFORM_END);
+
+    curl_formadd(&formpost,
+        &lastptr,
+        CURLFORM_COPYNAME, "content-type:",
+        CURLFORM_COPYCONTENTS, "multipart/form-data",
+        CURLFORM_END);
+
+    curl_formadd(&formpost, &lastptr,
+        CURLFORM_COPYNAME, "file",  
+        CURLFORM_BUFFER, "data",
+        CURLFORM_BUFFERPTR, kous.data(),
+        CURLFORM_BUFFERLENGTH, kous.size(),
+        CURLFORM_END);
+
+    curl = curl_easy_init();
+    headerlist = curl_slist_append(headerlist, buf);
+    if (curl) 
+    {
+        curl_easy_setopt(curl, CURLOPT_URL, "127.0.0.1:8000");
+        curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+
+        // Uncomment this section if you want details about the connection
+        // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+        res = curl_easy_perform(curl);
+        
+        if (res != CURLE_OK)
+        {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(res));
+        }
+
+        curl_easy_cleanup(curl);
+        curl_formfree(formpost);
+        curl_slist_free_all(headerlist);
+    }
+    else
+    {
+        cout<<"Unable to establish connection"<<endl;
+        exit(1);
+    }
 }
