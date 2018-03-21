@@ -27,6 +27,6 @@ Give the URL has the first argument and the filename as the second.
 
 `./client 127.0.0.1:8000 Data.csv`
 
-NOTE :- If you are using a localhost, don't forget to bypass proxy temporarily by `export http_proxy=''
+NOTE :- If you are using a localhost, don't forget to bypass proxy temporarily by `export http_proxy=''`
 
 If the csv file has emails, the program will print it.
