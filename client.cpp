@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     headerlist = curl_slist_append(headerlist, buf);
     if (curl) 
     {
-        curl_easy_setopt(curl, CURLOPT_URL, argv[1]);
+        curl_easy_setopt(curl, CURLOPT_URL,argv[1]);
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
         // Uncomment this section if you want details about the connection

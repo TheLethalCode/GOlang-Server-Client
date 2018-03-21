@@ -14,13 +14,19 @@ func extractemail(w http.ResponseWriter, r *http.Request) {
 	var Buf bytes.Buffer
 	file, _ , err := r.FormFile("file")
 	if err != nil {
-		panic(err)
+		io.WriteString(w,"Cannot open file\n")
+		return
 	}
 
 	io.Copy(&Buf, file)
 	
 	hi := csv.NewReader(strings.NewReader(Buf.String()))
 	record, err := hi.Read()
+	if err != nil {
+		io.WriteString(w,"Error processing the csv file\n")
+		return
+	}
+	
 	var val int
 	for i:=0;i<len(record);i=i+1 {
 		if strings.Contains(record[i],"email") || strings.Contains(record[i],"Email") {
